@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Avaliação de Bens Móveis e Benfeitorias Complementares</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;1,500&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#FAF7F0;
+    --paper-line:#E4DFD0;
+    --ink:#242220;
+    --ink-soft:#5C584E;
+    --ink-faint:#9A9585;
+    --forest:#2F4B3C;
+    --forest-light:#E4EBE4;
+    --rust:#A94B2E;
+    --rust-light:#F5E6DF;
+    --card:#FFFFFF;
+    --radius:10px;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:900px;margin:0 auto;padding:32px 20px 80px;}
+  header.app-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    border-bottom:2px solid var(--ink);
+    padding-bottom:16px;
+    margin-bottom:8px;
+    gap:16px;
+    flex-wrap:wrap;
+  }
+  header.app-head h1{
+    font-family:'Lora',serif;
+    font-weight:600;
+    font-size:24px;
+    margin:0 0 4px;
+    letter-spacing:-0.01em;
+  }
+  header.app-head p{
+    margin:0;
+    color:var(--ink-soft);
+    font-size:13px;
+  }
+  .badge-date{
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;
+    color:var(--ink-faint);
+    text-align:right;
+  }
+  .client-row{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+    margin:20px 0 28px;
+  }
+  .field{display:flex;flex-direction:column;gap:4px;}
+  .field label{
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:0.04em;
+    color:var(--ink-faint);
+    font-weight:600;
+  }
+  .field input{
+    border:none;
+    border-bottom:1px solid var(--paper-line);
+    background:transparent;
+    padding:6px 2px;
+    font-family:'Inter',sans-serif;
+    font-size:15px;
+    color:var(--ink);
+  }
+  .field input:focus{outline:none;border-bottom-color:var(--forest);}
+  .panel{
+    background:var(--card);
+    border:1px solid var(--paper-line);
+    border-radius:var(--radius);
+    padding:20px;
+    margin-bottom:20px;
+  }
+  .panel h2{
+    font-family:'Lora',serif;
+    font-size:16px;
+    font-weight:600;
+    margin:0 0 16px;
+  }
+  .form-grid{
+    display:grid;
+    grid-template-columns:2fr 1.1fr 0.8fr 1fr auto;
+    gap:10px;
+    align-items:end;
+  }
+  .form-grid .field label{margin-bottom:2px;}
+  select, .form-grid input{
+    width:100%;
+    padding:9px 10px;
+    border:1px solid var(--paper-line);
+    border-radius:6px;
+    background:#fff;
+    font-family:'Inter',sans-serif;
+    font-size:14px;
+    color:var(--ink);
+  }
+  select:focus,.form-grid input:focus{outline:none;border-color:var(--forest);}
+  optgroup{font-weight:600;}
+  button.add-btn{
+    background:var(--forest);
+    color:#fff;
+    border:none;
+    border-radius:6px;
+    padding:10px 16px;
+    font-size:14px;
+    font-weight:500;
+    cursor:pointer;
+    white-space:nowrap;
+  }
+  button.add-btn:hover{background:#25392D;}
+  .error-msg{
+    color:var(--rust);
+    font-size:12px;
+    margin-top:6px;
+    display:none;
+  }
+  table.items{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:6px;
+  }
+  table.items th{
+    text-align:left;
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:0.03em;
+    color:var(--ink-faint);
+    font-weight:600;
+    padding:8px 6px;
+    border-bottom:1px solid var(--ink);
+  }
+  table.items td{
+    padding:10px 6px;
+    border-bottom:1px solid var(--paper-line);
+    font-size:14px;
+    vertical-align:middle;
+  }
+  table.items td.num{
+    font-family:'JetBrains Mono',monospace;
+    text-align:right;
+    font-size:13px;
+  }
+  table.items td.result{
+    font-family:'JetBrains Mono',monospace;
+    text-align:right;
+    font-weight:600;
+    color:var(--forest);
+  }
+  .remove-btn{
+    background:none;
+    border:none;
+    color:var(--ink-faint);
+    cursor:pointer;
+    font-size:18px;
+    line-height:1;
+    padding:2px 6px;
+  }
+  .remove-btn:hover{color:var(--rust);}
+  .empty-row td{
+    text-align:center;
+    color:var(--ink-faint);
+    font-size:13px;
+    padding:24px 0;
+    font-style:italic;
+  }
+  .summary{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    background:var(--forest-light);
+    border-radius:var(--radius);
+    padding:20px 24px;
+    margin-top:8px;
+  }
+  .summary .label{
+    font-size:13px;
+    color:var(--ink-soft);
+    text-transform:uppercase;
+    letter-spacing:0.04em;
+    font-weight:600;
+  }
+  .summary .total{
+    font-family:'JetBrains Mono',monospace;
+    font-size:30px;
+    font-weight:600;
+    color:var(--forest);
+  }
+  .subnote{
+    font-size:12px;
+    color:var(--ink-faint);
+    margin-top:6px;
+  }
+  .actions{
+    display:flex;
+    gap:10px;
+    margin-top:24px;
+    justify-content:flex-end;
+  }
+  .actions button{
+    border-radius:6px;
+    padding:10px 18px;
+    font-size:14px;
+    font-weight:500;
+    cursor:pointer;
+    border:1px solid var(--ink);
+    background:#fff;
+    color:var(--ink);
+  }
+  .actions button.primary{
+    background:var(--ink);
+    color:#fff;
+  }
+  .actions button:hover{opacity:0.85;}
+  @media (max-width:720px){
+    .form-grid{grid-template-columns:1fr 1fr;}
+    .form-grid .field:nth-child(1){grid-column:1/3;}
+    .client-row{grid-template-columns:1fr;}
+    .summary{flex-direction:column;align-items:flex-start;gap:8px;}
+  }
+  @media print{
+    body{background:#fff;}
+    .panel.form-panel, .actions{display:none;}
+    .wrap{max-width:100%;padding:0;}
+    table.items td, table.items th{font-size:12px;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="app-head">
+    <div>
+      <h1>Avaliação de bens móveis e benfeitorias complementares</h1>
+      <p>Ferramenta de apoio à captação — separada do laudo do imóvel</p>
+    </div>
+    <div class="badge-date" id="printDate"></div>
+  </header>
+
+  <div class="client-row">
+    <div class="field">
+      <label for="clientName">Proprietário(a)</label>
+      <input type="text" id="clientName" placeholder="Nome do proprietário">
+    </div>
+    <div class="field">
+      <label for="propAddress">Imóvel</label>
+      <input type="text" id="propAddress" placeholder="Endereço ou referência do imóvel">
+    </div>
+  </div>
+
+  <div class="panel form-panel">
+    <h2>Adicionar item</h2>
+    <div class="form-grid">
+      <div class="field">
+        <label for="itemCategory">Item</label>
+        <select id="itemCategory"></select>
+      </div>
+      <div class="field">
+        <label for="itemValue">Valor novo (R$)</label>
+        <input type="number" id="itemValue" min="0" step="1" placeholder="0">
+      </div>
+      <div class="field">
+        <label for="itemAge">Idade (anos)</label>
+        <input type="number" id="itemAge" min="0" step="1" placeholder="0">
+      </div>
+      <div class="field">
+        <label for="itemCondition">Conservação</label>
+        <select id="itemCondition">
+          <option value="otimo">Ótimo</option>
+          <option value="bom" selected>Bom</option>
+          <option value="regular">Regular</option>
+          <option value="ruim">Ruim</option>
+        </select>
+      </div>
+      <button class="add-btn" id="addBtn" type="button">+ Adicionar</button>
+    </div>
+    <div class="error-msg" id="formError">Preencha o valor novo antes de adicionar.</div>
+  </div>
+
+  <div class="panel">
+    <h2>Itens avaliados</h2>
+    <table class="items">
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th>Idade</th>
+          <th>Conservação</th>
+          <th>Valor novo</th>
+          <th>Depreciação</th>
+          <th>Valor atual</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="itemsBody">
+        <tr class="empty-row"><td colspan="7">Nenhum item adicionado ainda</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="summary">
+    <div>
+      <div class="label">Total avaliado</div>
+      <div class="subnote" id="itemCount">0 itens</div>
+    </div>
+    <div class="total" id="grandTotal">R$ 0</div>
+  </div>
+
+  <div class="actions">
+    <button type="button" id="resetBtn">Nova avaliação</button>
+    <button type="button" class="primary" id="printBtn">Imprimir / Salvar PDF</button>
+  </div>
+
+</div>
+
+<script>
+const CATEGORIES = [
+  {group:"Sala e estar", items:[
+    {label:"Sofá", life:10, floor:0.10},
+    {label:"Poltrona", life:10, floor:0.10},
+    {label:"Rack ou estante", life:12, floor:0.12},
+    {label:"Mesa de centro", life:12, floor:0.12},
+    {label:"Aparador ou buffet", life:15, floor:0.15},
+    {label:"Tapete", life:8, floor:0.05},
+    {label:"Cortina ou persiana", life:8, floor:0.05},
+    {label:"Lustre ou iluminação especial", life:12, floor:0.10},
+  ]},
+  {group:"Jantar e cozinha", items:[
+    {label:"Mesa de jantar", life:15, floor:0.15},
+    {label:"Cadeiras (conjunto)", life:10, floor:0.10},
+    {label:"Armário de cozinha solto", life:15, floor:0.15},
+    {label:"Ilha de cozinha (fixa, marcenaria)", life:25, floor:0.30},
+    {label:"Bancada (granito ou quartzo)", life:25, floor:0.30},
+  ]},
+  {group:"Quarto", items:[
+    {label:"Cama ou box", life:10, floor:0.10},
+    {label:"Colchão", life:8, floor:0.05},
+    {label:"Cômoda", life:15, floor:0.15},
+    {label:"Escrivaninha", life:15, floor:0.15},
+    {label:"Armário de quarto solto", life:15, floor:0.15},
+  ]},
+  {group:"Marcenaria planejada", items:[
+    {label:"Armário planejado de cozinha", life:20, floor:0.25},
+    {label:"Armário planejado de quarto", life:20, floor:0.25},
+    {label:"Closet planejado", life:20, floor:0.25},
+  ]},
+  {group:"Eletrodomésticos", items:[
+    {label:"Geladeira", life:10, floor:0.05},
+    {label:"Fogão", life:12, floor:0.05},
+    {label:"Micro-ondas", life:8, floor:0.05},
+    {label:"Máquina de lavar", life:10, floor:0.05},
+    {label:"Ar-condicionado", life:10, floor:0.05},
+    {label:"TV", life:7, floor:0.05},
+  ]},
+  {group:"Área externa e fixos", items:[
+    {label:"Piscina", life:25, floor:0.30},
+    {label:"Muro ou fechamento diferenciado", life:30, floor:0.35},
+    {label:"Churrasqueira", life:30, floor:0.35},
+    {label:"Deck", life:15, floor:0.15},
+    {label:"Pergolado", life:20, floor:0.20},
+    {label:"Playground", life:12, floor:0.10},
+    {label:"Portão automatizado ou cerca", life:15, floor:0.15},
+  ]},
+  {group:"Outro", items:[
+    {label:"Outro móvel (padrão geral)", life:10, floor:0.10},
+    {label:"Outro item fixo ou estrutural", life:20, floor:0.20},
+  ]},
+];
+
+const CONDITION_FACTOR = {otimo:0.8, bom:1.0, regular:1.25, ruim:1.5};
+const CONDITION_LABEL = {otimo:"Ótimo", bom:"Bom", regular:"Regular", ruim:"Ruim"};
+
+const catSelect = document.getElementById('itemCategory');
+CATEGORIES.forEach(group => {
+  const og = document.createElement('optgroup');
+  og.label = group.group;
+  group.items.forEach((item, idx) => {
+    const opt = document.createElement('option');
+    opt.value = group.group + '::' + idx;
+    opt.textContent = item.label;
+    og.appendChild(opt);
+  });
+  catSelect.appendChild(og);
+});
+
+function findCategory(value){
+  const [groupName, idx] = value.split('::');
+  const group = CATEGORIES.find(g => g.group === groupName);
+  return group.items[parseInt(idx, 10)];
+}
+
+function formatBRL(n){
+  return n.toLocaleString('pt-BR', {style:'currency', currency:'BRL', maximumFractionDigits:0});
+}
+
+function calcDepreciation(life, floor, age, condition){
+  let rate = age / life;
+  if (rate > 1) rate = 1;
+  const factor = CONDITION_FACTOR[condition];
+  let depRate = rate * factor;
+  const maxDep = 1 - floor;
+  if (depRate > maxDep) depRate = maxDep;
+  if (depRate < 0) depRate = 0;
+  return depRate;
+}
+
+let items = [];
+
+function render(){
+  const body = document.getElementById('itemsBody');
+  body.innerHTML = '';
+  if (items.length === 0){
+    body.innerHTML = '<tr class="empty-row"><td colspan="7">Nenhum item adicionado ainda</td></tr>';
+  } else {
+    items.forEach((it, i) => {
+      const tr = document.createElement('tr');
+      tr.innerHTML =
+        '<td>' + it.label + '</td>' +
+        '<td class="num">' + it.age + ' anos</td>' +
+        '<td>' + CONDITION_LABEL[it.condition] + '</td>' +
+        '<td class="num">' + formatBRL(it.valueNew) + '</td>' +
+        '<td class="num">-' + Math.round(it.depRate * 100) + '%</td>' +
+        '<td class="result">' + formatBRL(it.valueNow) + '</td>' +
+        '<td><button class="remove-btn" data-idx="' + i + '" aria-label="Remover item">×</button></td>';
+      body.appendChild(tr);
+    });
+  }
+  document.querySelectorAll('.remove-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      items.splice(parseInt(btn.dataset.idx, 10), 1);
+      render();
+    });
+  });
+  const total = items.reduce((sum, it) => sum + it.valueNow, 0);
+  document.getElementById('grandTotal').textContent = formatBRL(total);
+  document.getElementById('itemCount').textContent = items.length + (items.length === 1 ? ' item' : ' itens');
+}
+
+document.getElementById('addBtn').addEventListener('click', () => {
+  const catValue = catSelect.value;
+  const valueInput = document.getElementById('itemValue');
+  const ageInput = document.getElementById('itemAge');
+  const conditionSelect = document.getElementById('itemCondition');
+  const errorEl = document.getElementById('formError');
+
+  const valueNew = parseFloat(valueInput.value);
+  if (!valueInput.value || isNaN(valueNew) || valueNew <= 0){
+    errorEl.style.display = 'block';
+    valueInput.focus();
+    return;
+  }
+  errorEl.style.display = 'none';
+
+  const age = parseFloat(ageInput.value) || 0;
+  const condition = conditionSelect.value;
+  const cat = findCategory(catValue);
+  const depRate = calcDepreciation(cat.life, cat.floor, age, condition);
+  const valueNow = Math.round(valueNew * (1 - depRate));
+
+  items.push({
+    label: cat.label,
+    age: age,
+    condition: condition,
+    valueNew: valueNew,
+    depRate: depRate,
+    valueNow: valueNow,
+  });
+
+  valueInput.value = '';
+  ageInput.value = '';
+  conditionSelect.value = 'bom';
+  render();
+  valueInput.focus();
+});
+
+document.getElementById('itemValue').addEventListener('input', () => {
+  document.getElementById('formError').style.display = 'none';
+});
+
+document.getElementById('resetBtn').addEventListener('click', () => {
+  if (items.length === 0) return;
+  const confirmed = confirm('Isso vai limpar todos os itens da avaliação atual. Continuar?');
+  if (confirmed){
+    items = [];
+    document.getElementById('clientName').value = '';
+    document.getElementById('propAddress').value = '';
+    render();
+  }
+});
+
+document.getElementById('printBtn').addEventListener('click', () => {
+  window.print();
+});
+
+document.getElementById('printDate').textContent = new Date().toLocaleDateString('pt-BR', {day:'2-digit', month:'long', year:'numeric'});
+
+render();
+</script>
+</body>
+</html>
